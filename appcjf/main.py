@@ -163,6 +163,7 @@ if status==200:
                                     lsText.append(str(pageObj.extractText().encode('utf-8')))
                                     #tool.appendInfoToFile(download_dir+'\\','temp.txt',str(strContent))                             
                                 pdfFileObj.close()
+                                print('PDF done...')
 
                             #Clean all the list of words
                             for content in lsText:
@@ -184,7 +185,7 @@ if status==200:
                             for word in lsCleanWord3:
                                 json_sentencia['lspdfcontent'].append(word)
                             for file in os.listdir(download_dir):
-                                os.remove(download_dir+'\\'+file) 
+                                os.remove(download_dir+'/'+file) 
 
                         #Insert information to cassandra
                         #res=bd.cassandraBDProcess(json_sentencia)
