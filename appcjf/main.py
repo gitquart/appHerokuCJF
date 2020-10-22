@@ -18,6 +18,7 @@ import uuid
 import cassandraSent as bd
 
 pathToHere=os.getcwd()
+print('Current path:',pathToHere)
 
 options = webdriver.ChromeOptions()
 
@@ -77,11 +78,14 @@ if status==200:
     #WAit X secs until query is loaded.
     time.sleep(30)
     #Mechanism no failure
+    print('Non failure mechanism started...')
     SectionNextPages=browser.find_elements_by_xpath("//*[@id='grdSentencias_ctl00']/tfoot/tr/td/table/tbody/tr/td/div[2]/a[11]")[0].click()
     time.sleep(2)
     btnBuscaTema=browser.find_elements_by_id('btnBuscarPorTema')[0].click()
     time.sleep(2)
     SectionPriorPages=browser.find_elements_by_xpath("//*[@id='grdSentencias_ctl00']/tfoot/tr/td/table/tbody/tr/td/div[2]/a[1]")[0].click() 
+    print('End of Non failure mechanism started...')
+    #End of no failure mechanism
     
     print('Start reading the page...')
     for page in range(1,100):
@@ -120,10 +124,11 @@ if status==200:
                         pdf_window=browser.window_handles[1]
                         browser.switch_to_window(pdf_window)
                     
-                        with open('json_sentencia.json') as json_file:
+                        with open('/app/appcjf/json_sentencia.json') as json_file:
                             json_sentencia = json.load(json_file)
 
                         json_sentencia['id']=str(uuid.uuid4())
+                        print(fileNumber)
                         json_sentencia['filenumber']=fileNumber
                         json_sentencia['filetype']=filetype
                         json_sentencia['jurisdictionalreviewer']=juris_rev
