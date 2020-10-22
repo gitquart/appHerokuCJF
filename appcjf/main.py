@@ -178,7 +178,8 @@ if status==200:
                                 os.remove(download_dir+'\\'+file) 
 
                         #Insert information to cassandra
-                        res=bd.cassandraBDProcess(json_sentencia)
+                        #res=bd.cassandraBDProcess(json_sentencia)
+                        res=True
                         if res:
                             print('Sentencia added:',str(fileNumber))
                         else:
