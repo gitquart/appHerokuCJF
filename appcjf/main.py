@@ -160,8 +160,8 @@ if status==200:
                                 pags=pdfReader.numPages
                                 for x in range(0,pags):
                                     pageObj = pdfReader.getPage(x)
-                                    lsText.append(str(pageObj.extractText().encode('utf-8')))
-                                    #tool.appendInfoToFile(download_dir+'\\','temp.txt',str(strContent))                             
+                                    print(str(pageObj.extractText().encode('utf-8')))
+                                    lsText.append(str(pageObj.extractText().encode('utf-8')))                             
                                 pdfFileObj.close()
                                 print('PDF done...')
 
