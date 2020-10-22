@@ -50,9 +50,7 @@ chrome_options.add_experimental_option("prefs", profile)
 browser=webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"),chrome_options=chrome_options)
 #chromedriver_autoinstaller.install()
 #browser=webdriver.Chrome(options=options)
-browser.get('chrome://settings/clearBrowserData')
-browser.find_element_by_xpath('//settings-ui').send_keys(Keys.ENTER)
-print('Browser data clear...')
+
 
 url="https://sise.cjf.gob.mx/consultasvp/default.aspx"
 
