@@ -31,7 +31,9 @@ profile = {"plugins.plugins_list": [{"enabled": False, "name": "Chrome PDF Viewe
                }
 
 #Erase every file in download folder at the beginning to avoid mixed files
-print('Looking for download folder...')
+
+os.mkdir(download_dir)
+print('Download directory created...')
 for file in os.listdir(download_dir):
     os.remove(download_dir+'/'+file)
 
