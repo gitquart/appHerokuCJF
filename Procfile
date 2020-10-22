@@ -1,0 +1,1 @@
+worker: python3 /app/testingApp/main.py
