@@ -32,8 +32,11 @@ profile = {"plugins.plugins_list": [{"enabled": False, "name": "Chrome PDF Viewe
                }
 
 #Erase every file in download folder at the beginning to avoid mixed files
-
-os.mkdir(download_dir)
+print('Checking if download folder exists...')
+isdir = os.path.isdir(download_dir)
+if isdir==False:
+    print('Creating download folder...')
+    os.mkdir(download_dir)
 print('Download directory created...')
 for file in os.listdir(download_dir):
     os.remove(download_dir+'/'+file)
@@ -84,7 +87,7 @@ if status==200:
     btnBuscaTema=browser.find_elements_by_id('btnBuscarPorTema')[0].click()
     time.sleep(2)
     SectionPriorPages=browser.find_elements_by_xpath("//*[@id='grdSentencias_ctl00']/tfoot/tr/td/table/tbody/tr/td/div[2]/a[1]")[0].click() 
-    print('End of Non failure mechanism started...')
+    print('End of Non failure mechanism...')
     #End of no failure mechanism
     
     print('Start reading the page...')
@@ -152,7 +155,7 @@ if status==200:
                             print('PDF is downloaded...')
                             strFile=file.split('.')[1]
                             if strFile=='PDF' or strFile=='pdf':
-                                pdfFileObj = open(download_dir+'\\'+file, 'rb')
+                                pdfFileObj = open(download_dir+'/'+file, 'rb')
                                 pdfReader = PyPDF2.PdfFileReader(pdfFileObj)
                                 pags=pdfReader.numPages
                                 for x in range(0,pags):
