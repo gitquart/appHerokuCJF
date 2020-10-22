@@ -21,7 +21,7 @@ pathToHere=os.getcwd()
 
 options = webdriver.ChromeOptions()
 
-download_dir=pathToHere+'/Download'
+download_dir='/app/Download'
 profile = {"plugins.plugins_list": [{"enabled": False, "name": "Chrome PDF Viewer"}], # Disable Chrome's PDF Viewer
                "download.default_directory": download_dir , 
                "download.prompt_for_download": False,
@@ -31,6 +31,7 @@ profile = {"plugins.plugins_list": [{"enabled": False, "name": "Chrome PDF Viewe
                }
 
 #Erase every file in download folder at the beginning to avoid mixed files
+print('Looking for download folder...')
 for file in os.listdir(download_dir):
     os.remove(download_dir+'/'+file)
 
