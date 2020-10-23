@@ -72,8 +72,6 @@ if status==200:
         
     time.sleep(3)  
     #Read the information of query and page
-    with open('/app/appcjf/json_control.json') as json_file:
-        json_control = json.load(json_file)
     lsInfo=[]
     #1.Topic, 2. Page
     lsInfo=bd.getPageAndTopic()
