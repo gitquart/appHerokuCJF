@@ -86,8 +86,10 @@ def getPageAndTopic():
         
     if row: 
         for val in row:
-            lsInfo.append(str(val))
-            print('Value from cassandra:',str(val))
+            lsInfo.append(str(val[0]))
+            lsInfo.append(str(val[1]))
+            print('Value from cassandra:',str(val[0]))
+            print('Value from cassandra:',str(val[1]))
         cluster.shutdown()
                     
                          
