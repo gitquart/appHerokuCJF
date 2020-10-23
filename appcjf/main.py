@@ -159,6 +159,11 @@ if status==200:
 
                         json_sentencia['id']=str(uuid.uuid4())
                         json_sentencia['filenumber']=fileNumber
+                        data=''
+                        data=fileNumber.split('/')
+                        year=0
+                        year=int(data[1])
+                        json_sentencia['year']=year
                         json_sentencia['filetype']=filetype
                         json_sentencia['jurisdictionalreviewer']=juris_rev
                         # timestamp accepted for cassandra: yyyy-mm-dd 
