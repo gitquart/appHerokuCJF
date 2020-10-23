@@ -205,7 +205,7 @@ if status==200:
                             for word in lsCleanWord3:
                                 json_sentencia['lspdfcontent'].append(word)
                             for file in os.listdir(download_dir):
-                                os.remove(download_dir+'\\'+file) 
+                                os.remove(download_dir+'/'+file) 
 
                         #Insert information to cassandra
                         res=bd.cassandraBDProcess(json_sentencia)
