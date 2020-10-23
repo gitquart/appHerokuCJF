@@ -57,7 +57,7 @@ def updatePage(strquery,page):
     session = cluster.connect()
     session.default_timeout=70
     row=''
-    page=int(page)
+    page=str(page)
     querySt="update thesis.cjf_control set page="+page+" where query='"+strquery+"' and id_control=1;"          
     future = session.execute_async(querySt)
     row=future.result()
