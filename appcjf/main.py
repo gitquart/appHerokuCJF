@@ -55,9 +55,8 @@ browser=webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"),chr
 #chromedriver_autoinstaller.install()
 #browser=webdriver.Chrome(options=options)
 
-
+#Since here both versions (heroku and desktop) are THE SAME
 url="https://sise.cjf.gob.mx/consultasvp/default.aspx"
-
 response= requests.get(url)
 status= response.status_code
 if status==200:  
@@ -72,28 +71,55 @@ if status==200:
         print('No alert found!')
         
     time.sleep(3)  
+    #Read the information of query and page
+    with open('/app/appcjf/json_control.json') as json_file:
+        json_control = json.load(json_file)
+    
+    topic=json_control['query']
+    startPage=int(json_control['pag'])
 
     #class names for li: rtsLI rtsLast
     liBuscar=browser.find_elements_by_xpath("//li[contains(@class,'rtsLI rtsLast')]")[0].click()
-    strSearch='Tercer circuito'
+    strSearch=topic
     txtBuscar= browser.find_elements_by_id('txtTema')[0].send_keys(strSearch)
     btnBuscaTema=browser.find_elements_by_id('btnBuscarPorTema')[0].click()
     #WAit X secs until query is loaded.
-    time.sleep(30)
-    #Mechanism no failure
-    print('Non failure mechanism started...')
-    SectionNextPages=browser.find_elements_by_xpath("//*[@id='grdSentencias_ctl00']/tfoot/tr/td/table/tbody/tr/td/div[2]/a[11]")[0].click()
-    time.sleep(2)
-    btnBuscaTema=browser.find_elements_by_id('btnBuscarPorTema')[0].click()
-    time.sleep(2)
-    SectionPriorPages=browser.find_elements_by_xpath("//*[@id='grdSentencias_ctl00']/tfoot/tr/td/table/tbody/tr/td/div[2]/a[1]")[0].click() 
-    print('End of Non failure mechanism...')
-    #End of no failure mechanism
-    
+    time.sleep(20)
+    if startPage<=10:
+        #Mechanism no failure
+        btnBuscaTema=browser.find_elements_by_id('btnBuscarPorTema')[0].click()
+        #End of non failire mechanism
+
+    if startPage>10 and startPage<=100:
+        if startPage>90:
+            ten=10
+        else:    
+            ten=str(startPage)
+            ten=int(ten[0])+1
+        for times in range(1,ten):
+            if times==1:
+                SectionNextPages=browser.find_elements_by_xpath("//*[@id='grdSentencias_ctl00']/tfoot/tr/td/table/tbody/tr/td/div[2]/a[11]")[0].click()
+                time.sleep(5)
+                btnBuscaTema=browser.find_elements_by_id('btnBuscarPorTema')[0].click()
+                time.sleep(5)
+            else:
+                SectionNextPages=browser.find_elements_by_xpath("//*[@id='grdSentencias_ctl00']/tfoot/tr/td/table/tbody/tr/td/div[2]/a[12]")[0].click()
+                time.sleep(5)
+                btnBuscaTema=browser.find_elements_by_id('btnBuscarPorTema')[0].click()
+                time.sleep(5)
+
+    #Rest for 10 seconds just to slow down
+    time.sleep(10)
     print('Start reading the page...')
-    for page in range(1,100):
-        #Time sleep for the click to change paging
-        time.sleep(3)
+    #Control the page
+    #Page identention
+    while (startPage<=100):
+        print('Currently on page:',str(startPage),'with query:',str(topic))
+        json_file=open('/app/appcjf/json_control.json','r')
+        json_control = json.load(json_file)
+        jsonPag=json_control['pag']
+        print('Page from json control:',str(jsonPag))
+        countRow=0
         for row in range(0,20):
             pdfDownloaded=False
             for col in range(1,8):
@@ -118,7 +144,7 @@ if status==200:
                     #This find_element method works!
                     link=browser.find_element(By.XPATH,'//*[@id="grdSentencias_ctl00__'+str(row)+'"]/td['+str(col)+']/a')
                     link.click()
-                    #Time sleep to let the pdf window open and download
+                    #Wait until the second window is open and the pdf is downloaded (or not downloaded)
                     time.sleep(20)
                     if len(browser.window_handles)>1:
                         #window_handles changes always
@@ -126,12 +152,12 @@ if status==200:
                         main_window=browser.window_handles[0]
                         pdf_window=browser.window_handles[1]
                         browser.switch_to_window(pdf_window)
-                    
+       
+                        #Build the json by row            
                         with open('/app/appcjf/json_sentencia.json') as json_file:
                             json_sentencia = json.load(json_file)
 
                         json_sentencia['id']=str(uuid.uuid4())
-                        print(fileNumber)
                         json_sentencia['filenumber']=fileNumber
                         json_sentencia['filetype']=filetype
                         json_sentencia['jurisdictionalreviewer']=juris_rev
@@ -143,16 +169,12 @@ if status==200:
                         json_sentencia['strpublicationdatetime']=dtDate
                         json_sentencia['subject']=subject
                         json_sentencia['summary']=str(summary).replace("'"," ")    
-
-
-                        #Check if a pdf exists
-                       
+                        #Check if a pdf exists                       
                         json_sentencia['lspdfcontent'].clear()
                         lsText=[]
                         lsWords=[]
                         for file in os.listdir(download_dir):
                             pdfDownloaded=True
-                            print('PDF is downloaded...')
                             strFile=file.split('.')[1]
                             if strFile=='PDF' or strFile=='pdf':
                                 pdfFileObj = open(download_dir+'/'+file, 'rb')
@@ -160,10 +182,8 @@ if status==200:
                                 pags=pdfReader.numPages
                                 for x in range(0,pags):
                                     pageObj = pdfReader.getPage(x)
-                                    print(str(pageObj.extractText().encode('utf-8')))
-                                    lsText.append(str(pageObj.extractText().encode('utf-8')))                             
+                                    lsText.append(str(pageObj.extractText().encode('utf-8')))                            
                                 pdfFileObj.close()
-                                print('PDF done...')
 
                             #Clean all the list of words
                             for content in lsText:
@@ -185,24 +205,45 @@ if status==200:
                             for word in lsCleanWord3:
                                 json_sentencia['lspdfcontent'].append(word)
                             for file in os.listdir(download_dir):
-                                os.remove(download_dir+'/'+file) 
+                                os.remove(download_dir+'\\'+file) 
 
                         #Insert information to cassandra
-                        #res=bd.cassandraBDProcess(json_sentencia)
-                        res=True
+                        res=bd.cassandraBDProcess(json_sentencia)
+                        #res=True
                         if res:
                             print('Sentencia added:',str(fileNumber))
                         else:
-                            print('Keep going...sentencia existed:',str(fileNumber))    
-
+                            print('Keep going...sentencia existed:',str(fileNumber)) 
+                    
+                        countRow=countRow+1
                         browser.close()
-                        browser.switch_to_window(main_window)
+                        browser.switch_to_window(main_window)    
+
                     else:
                         print('Hold it...nothing was opened!...Search: ',strSearch)
                         browser.quit()
-                        sys.exit(0)
-        btnnext=browser.find_elements_by_xpath('//*[@id="grdSentencias_ctl00"]/tfoot/tr/td/table/tbody/tr/td/div[3]/input[1]')[0].click()               
-     
+                        sys.exit(0)       
 
-    browser.quit()
-                           
+        #Page identention
+        print('Count of Rows:',str(countRow)) 
+        #Update the info in file
+        infoPage=str(browser.find_element(By.XPATH,'//*[@id="grdSentencias_ctl00"]/tfoot/tr/td/table/tbody/tr/td/div[5]').text)
+        data=infoPage.split(' ')
+        currentPage=int(data[2])
+        print('Page already done:...',str(currentPage))   
+        control_page=int(currentPage)+1
+        startPage=control_page
+        #Edit json control file
+        json_file=open('/app/appcjf/json_control.json','r')
+        json_control = json.load(json_file)
+        json_file.close()
+        json_control['pag']=control_page
+        json_file=open('/app/appcjf/json_control.json','w')
+        json.dump(json_control, json_file)
+        json_file.close()
+        #Change the page with next
+        btnnext=browser.find_elements_by_xpath('//*[@id="grdSentencias_ctl00"]/tfoot/tr/td/table/tbody/tr/td/div[3]/input[1]')[0].click()
+        time.sleep(5) 
+        #btnBuscaTema=browser.find_elements_by_id('btnBuscarPorTema')[0].click()  
+
+browser.quit()
