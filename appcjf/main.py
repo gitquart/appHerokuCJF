@@ -237,6 +237,7 @@ if status==200:
         data=infoPage.split(' ')
         currentPage=int(data[2])
         print('Page already done:...',str(currentPage))   
+        print('------------------------END--------------------------------------------')
         control_page=int(currentPage)+1
         startPage=control_page
         #Update page in cassandra here
