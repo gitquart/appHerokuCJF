@@ -13,7 +13,7 @@ def cassandraBDProcess(json_sentencia):
     #Connect to Cassandra
     objCC=CassandraConnection()
     cloud_config= {
-        'secure_connect_bundle': pathToHere+'\\secure-connect-dbquart.zip'
+        'secure_connect_bundle': '/app/appcjf/secure-connect-dbquart.zip'
     }
     
     auth_provider = PlainTextAuthProvider(objCC.cc_user,objCC.cc_pwd)
