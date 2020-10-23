@@ -74,9 +74,12 @@ if status==200:
     #Read the information of query and page
     with open('/app/appcjf/json_control.json') as json_file:
         json_control = json.load(json_file)
-    
-    topic=json_control['query']
-    startPage=int(json_control['pag'])
+    lsInfo=[]
+    #1.Topic, 2. Page
+    lsInfo=bd.getPageAndTopic()
+    topic=str(lsInfo[0])
+    page=str(lsInfo[1])
+    startPage=int(page)
 
     #class names for li: rtsLI rtsLast
     liBuscar=browser.find_elements_by_xpath("//li[contains(@class,'rtsLI rtsLast')]")[0].click()
@@ -115,10 +118,8 @@ if status==200:
     #Page identention
     while (startPage<=100):
         print('Currently on page:',str(startPage),'with query:',str(topic))
-        json_file=open('/app/appcjf/json_control.json','r')
-        json_control = json.load(json_file)
-        jsonPag=json_control['pag']
-        print('Page from json control:',str(jsonPag))
+        #Get the value of page here
+        print('Page from json control:',str(page))
         countRow=0
         for row in range(0,20):
             pdfDownloaded=False
@@ -238,14 +239,8 @@ if status==200:
         print('Page already done:...',str(currentPage))   
         control_page=int(currentPage)+1
         startPage=control_page
-        #Edit json control file
-        json_file=open('/app/appcjf/json_control.json','r')
-        json_control = json.load(json_file)
-        json_file.close()
-        json_control['pag']=control_page
-        json_file=open('/app/appcjf/json_control.json','w')
-        json.dump(json_control, json_file)
-        json_file.close()
+        #Update page in cassandra here
+        bd.updatePage(topic,control_page)
         #Change the page with next
         btnnext=browser.find_elements_by_xpath('//*[@id="grdSentencias_ctl00"]/tfoot/tr/td/table/tbody/tr/td/div[3]/input[1]')[0].click()
         time.sleep(5) 
