@@ -158,6 +158,7 @@ if status==200:
 
                         json_sentencia['id']=str(uuid.uuid4())
                         json_sentencia['filenumber']=fileNumber
+                        print('Current sent:',str(fileNumber))
                         data=''
                         data=fileNumber.split('/')
                         year=0
