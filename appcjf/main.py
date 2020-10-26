@@ -16,6 +16,7 @@ import sys
 import PyPDF2
 import uuid
 import cassandraSent as bd
+import base64
 
 pathToHere=os.getcwd()
 print('Current path:',pathToHere)
@@ -175,9 +176,9 @@ if status==200:
                         json_sentencia['subject']=subject
                         json_sentencia['summary']=str(summary).replace("'"," ")    
                         #Check if a pdf exists                       
-                        json_sentencia['lspdfcontent'].clear()
-                        lsText=[]
-                        lsWords=[]
+                        json_sentencia['pdfcontent']=''
+                        contFile=''
+                        strContent=''
                         for file in os.listdir(download_dir):
                             pdfDownloaded=True
                             strFile=file.split('.')[1]
@@ -187,28 +188,15 @@ if status==200:
                                 pags=pdfReader.numPages
                                 for x in range(0,pags):
                                     pageObj = pdfReader.getPage(x)
-                                    lsText.append(str(pageObj.extractText().encode('utf-8')))                            
+                                    strContent=pageObj.extractText().encode('utf-8')  
+                                    cont64=base64.b64encode(strContent)
+                                    contFile=contFile+str(cont64)                         
                                 pdfFileObj.close()
-
-                            #Clean all the list of words
-                            for content in lsText:
-                                lsWords.append(content.split())
-                            
-                            lsCleanWord=[]
-                            for word in lsWords:
-                                lsCleanWord.append(str(word).replace("b'"," "))
-                            lsCleanWord2=[]
-                            for word in lsCleanWord:
-                                lsCleanWord2.append(str(word).replace("\'"," "))    
-                            lsCleanWord3=[]
-                            for word in lsCleanWord2:
-                                lsCleanWord3.append(str(word).replace("\n"," "))  
-                                             
+                           
                         #When pdf is done and the record is in cassandra, delete all files in download folder
                         #If the pdf is not downloaded but the window is open, save the data without pdf
                         if pdfDownloaded==True:
-                            for word in lsCleanWord3:
-                                json_sentencia['lspdfcontent'].append(word)
+                            json_sentencia['pdfcontent']=contFile.replace("b'"," ").replace("\'"," ")    
                             for file in os.listdir(download_dir):
                                 os.remove(download_dir+'/'+file) 
 
