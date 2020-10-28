@@ -87,7 +87,7 @@ def processRow(browser,strSearch,row):
                     for item in lsContent:
                         json_sentencia['lspdfcontent'].append(item)
                     for file in os.listdir(download_dir):
-                        os.remove(download_dir+'\\'+file) 
+                        os.remove(download_dir+'/'+file) 
 
                 #Insert information to cassandra
                 res=bd.cassandraBDProcess(json_sentencia)

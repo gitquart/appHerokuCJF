@@ -123,8 +123,6 @@ if status==200:
         for row in range(0,20):
             tool.processRow(browser,strSearch,row)
 
-        #Page identention
-        print('Count of Rows:',str(countRow)) 
         #Update the info in file
         infoPage=str(browser.find_element(By.XPATH,'//*[@id="grdSentencias_ctl00"]/tfoot/tr/td/table/tbody/tr/td/div[5]').text)
         data=infoPage.split(' ')
