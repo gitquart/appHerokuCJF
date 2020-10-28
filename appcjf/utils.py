@@ -51,7 +51,7 @@ def processRow(browser,strSearch,row):
                 browser.switch_to_window(pdf_window)
        
                 #Build the json by row            
-                with open('json_sentencia.json') as json_file:
+                with open('/app/appcjf/json_sentencia.json') as json_file:
                     json_sentencia = json.load(json_file)
 
                 json_sentencia['id']=str(uuid.uuid4())
@@ -110,7 +110,7 @@ def readPyPDF(file):
     #This procedure produces a b'blabla' string, it has UTF-8
     #PDF files are stored as bytes. Therefore to read or write a PDF file you need to use rb or wb.
     lsContent=[]
-    pdfFileObj = open(download_dir+'\\'+file, 'rb')
+    pdfFileObj = open(download_dir+'/'+file, 'rb')
     pdfReader = PyPDF2.PdfFileReader(pdfFileObj)
     pags=pdfReader.numPages
     for x in range(0,pags):
