@@ -58,7 +58,7 @@ def updatePage(strquery,page):
     session.default_timeout=70
     row=''
     page=str(page)
-    querySt="update thesis.cjf_control set page="+page+" where query='"+strquery+"' and id_control=1;"          
+    querySt="update thesis.cjf_control set page="+page+" where query='"+strquery+"' and id_control=3;"          
     future = session.execute_async(querySt)
     row=future.result()
                          
@@ -78,7 +78,7 @@ def getPageAndTopic():
     session.default_timeout=70
     row=''
     #select page from  thesis.cjf_control where id_control=1 and query='Primer circuito'
-    querySt="select query,page from thesis.cjf_control where id_control=1  ALLOW FILTERING"
+    querySt="select query,page from thesis.cjf_control where id_control=3  ALLOW FILTERING"
                 
     future = session.execute_async(querySt)
     row=future.result()
