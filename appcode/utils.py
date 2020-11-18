@@ -73,7 +73,7 @@ def processRow(browser,strSearch,row):
                 json_sentencia['summary']=str(summary).replace("'"," ")    
                 #Check if a pdf exists                       
                 
-               #Insert information to cassandra
+                #Insert information to cassandra
                 lsRes=bd.cassandraBDProcess(json_sentencia)
                 if lsRes[0]:
                     print('Sentencia added:',str(fileNumber))
