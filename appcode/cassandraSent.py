@@ -13,7 +13,7 @@ def cassandraBDProcess(json_sentencia):
     #Connect to Cassandra
     objCC=CassandraConnection()
     cloud_config= {
-        'secure_connect_bundle': '/app/appcjf/secure-connect-dbquart.zip'
+        'secure_connect_bundle': '/app/appcode/secure-connect-dbquart.zip'
     }
     
     auth_provider = PlainTextAuthProvider(objCC.cc_user,objCC.cc_pwd)
@@ -24,13 +24,18 @@ def cassandraBDProcess(json_sentencia):
     fileNumber=json_sentencia['filenumber']
     #Check wheter or not the record exists, check by numberFile and date
     #Date in cassandra 2020-09-10T00:00:00.000+0000
-    querySt="select id from thesis.tbcourtdecisioncjf where filenumber='"+str(fileNumber)+"'  ALLOW FILTERING"
-                
+    querySt="select id from thesis.tbcourtdecisioncjf where filenumber='"+str(fileNumber)+"'  ALLOW FILTERING"            
     future = session.execute_async(querySt)
     row=future.result()
+    lsRes=[]
         
     if row: 
         sent_added=False
+        valid=''
+        for val in row:
+            valid=str(val[0])
+        lsRes.append(sent_added) 
+        lsRes.append(valid)   
         cluster.shutdown()
     else:        
         #Insert Data as JSON
@@ -39,28 +44,28 @@ def cassandraBDProcess(json_sentencia):
         future = session.execute_async(insertSt)
         future.result()  
         sent_added=True
+        lsRes.append(sent_added)
         cluster.shutdown()     
                     
                          
-    return sent_added
+    return lsRes
 
-def updatePage(strquery,page):
+def updatePage(page):
 
     #Connect to Cassandra
     objCC=CassandraConnection()
     cloud_config= {
-        'secure_connect_bundle': '/app/appcjf/secure-connect-dbquart.zip'
+        'secure_connect_bundle': '/app/appcode/secure-connect-dbquart.zip'
     }
     
     auth_provider = PlainTextAuthProvider(objCC.cc_user,objCC.cc_pwd)
     cluster = Cluster(cloud=cloud_config, auth_provider=auth_provider)
     session = cluster.connect()
     session.default_timeout=70
-    row=''
     page=str(page)
-    querySt="update thesis.cjf_control set page="+page+" where query='"+strquery+"' and id_control=3;"          
+    querySt="update thesis.cjf_control set page="+page+" where  id_control=1;"          
     future = session.execute_async(querySt)
-    row=future.result()
+    future.result()
                          
     return True
 
@@ -69,7 +74,7 @@ def getPageAndTopic():
     #Connect to Cassandra
     objCC=CassandraConnection()
     cloud_config= {
-        'secure_connect_bundle': '/app/appcjf/secure-connect-dbquart.zip'
+        'secure_connect_bundle': '/app/appcode/secure-connect-dbquart.zip'
     }
     
     auth_provider = PlainTextAuthProvider(objCC.cc_user,objCC.cc_pwd)
@@ -78,7 +83,7 @@ def getPageAndTopic():
     session.default_timeout=70
     row=''
     #select page from  thesis.cjf_control where id_control=1 and query='Primer circuito'
-    querySt="select query,page from thesis.cjf_control where id_control=3  ALLOW FILTERING"
+    querySt="select query,page from thesis.cjf_control where id_control=1  ALLOW FILTERING"
                 
     future = session.execute_async(querySt)
     row=future.result()
@@ -94,6 +99,43 @@ def getPageAndTopic():
                     
                          
     return lsInfo
+
+
+def insertPDF(json_doc):
+     
+    record_added=False
+
+    #Connect to Cassandra
+    objCC=CassandraConnection()
+    cloud_config= {
+        'secure_connect_bundle': '/app/appcode/secure-connect-dbquart.zip'
+    }
+    
+    auth_provider = PlainTextAuthProvider(objCC.cc_user,objCC.cc_pwd)
+    cluster = Cluster(cloud=cloud_config, auth_provider=auth_provider)
+    session = cluster.connect()
+    session.default_timeout=100
+
+    iddocumento=str(json_doc['idDocumento'])
+    documento=str(json_doc['documento'])
+    fuente=str(json_doc['fuente'])
+    secuencia=str(json_doc['secuencia'])
+    querySt="select id from thesis.tbDocumento_cjf where iddocumento="+iddocumento+" and documento='"+documento+"' and fuente='"+fuente+"' AND secuencia="+secuencia+"  ALLOW FILTERING"          
+    future = session.execute_async(querySt)
+    row=future.result()
+
+    if row:
+        cluster.shutdown()
+    else:    
+        jsonS=json.dumps(json_doc)           
+        insertSt="INSERT INTO thesis.tbDocumento_cjf JSON '"+jsonS+"';" 
+        future = session.execute_async(insertSt)
+        future.result()  
+        record_added=True
+        cluster.shutdown()     
+                    
+                         
+    return record_added     
 
    
 class CassandraConnection():

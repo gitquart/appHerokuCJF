@@ -128,14 +128,14 @@ if status==200:
         data=infoPage.split(' ')
         currentPage=int(data[2])
         print('Page already done:...',str(currentPage))   
-        print('------------------------END--------------------------------------------')
+        print('------------------------END--------------------------------------------') 
         control_page=int(currentPage)+1
         startPage=control_page
-        #Update page in cassandra here
-        bd.updatePage(topic,control_page)
+        #Edit  control file
+        bd.updatePage(control_page)
         #Change the page with next
         btnnext=browser.find_elements_by_xpath('//*[@id="grdSentencias_ctl00"]/tfoot/tr/td/table/tbody/tr/td/div[3]/input[1]')[0].click()
-        time.sleep(5) 
+        time.sleep(5)  
           
 
 browser.quit()
