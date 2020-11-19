@@ -4,7 +4,10 @@ from cassandra.auth import PlainTextAuthProvider
 from cassandra.query import SimpleStatement
 import os
 
-pathToHere=os.getcwd()
+timeOut=1000000
+cloud_config= {
+        'secure_connect_bundle': '/app/appcode/secure-connect-dbquart.zip'
+    }
               
 def cassandraBDProcess(json_sentencia):
      
@@ -12,14 +15,10 @@ def cassandraBDProcess(json_sentencia):
 
     #Connect to Cassandra
     objCC=CassandraConnection()
-    cloud_config= {
-        'secure_connect_bundle': '/app/appcode/secure-connect-dbquart.zip'
-    }
-    
     auth_provider = PlainTextAuthProvider(objCC.cc_user,objCC.cc_pwd)
     cluster = Cluster(cloud=cloud_config, auth_provider=auth_provider)
     session = cluster.connect()
-    session.default_timeout=70
+    session.default_timeout=timeOut
     row=''
     fileNumber=json_sentencia['filenumber']
     #Check wheter or not the record exists, check by numberFile and date
@@ -54,14 +53,10 @@ def updatePage(page):
 
     #Connect to Cassandra
     objCC=CassandraConnection()
-    cloud_config= {
-        'secure_connect_bundle': '/app/appcode/secure-connect-dbquart.zip'
-    }
-    
     auth_provider = PlainTextAuthProvider(objCC.cc_user,objCC.cc_pwd)
     cluster = Cluster(cloud=cloud_config, auth_provider=auth_provider)
     session = cluster.connect()
-    session.default_timeout=70
+    session.default_timeout=timeOut
     page=str(page)
     querySt="update thesis.cjf_control set page="+page+" where  id_control=1;"          
     future = session.execute_async(querySt)
@@ -73,14 +68,10 @@ def getPageAndTopic():
 
     #Connect to Cassandra
     objCC=CassandraConnection()
-    cloud_config= {
-        'secure_connect_bundle': '/app/appcode/secure-connect-dbquart.zip'
-    }
-    
     auth_provider = PlainTextAuthProvider(objCC.cc_user,objCC.cc_pwd)
     cluster = Cluster(cloud=cloud_config, auth_provider=auth_provider)
     session = cluster.connect()
-    session.default_timeout=70
+    session.default_timeout=timeOut
     row=''
     #select page from  thesis.cjf_control where id_control=1 and query='Primer circuito'
     querySt="select query,page from thesis.cjf_control where id_control=1  ALLOW FILTERING"
@@ -107,15 +98,10 @@ def insertPDF(json_doc):
 
     #Connect to Cassandra
     objCC=CassandraConnection()
-    cloud_config= {
-        'secure_connect_bundle': '/app/appcode/secure-connect-dbquart.zip'
-    }
-    
     auth_provider = PlainTextAuthProvider(objCC.cc_user,objCC.cc_pwd)
     cluster = Cluster(cloud=cloud_config, auth_provider=auth_provider)
     session = cluster.connect()
-    session.default_timeout=100
-
+    session.default_timeout=timeOut
     iddocumento=str(json_doc['idDocumento'])
     documento=str(json_doc['documento'])
     fuente=str(json_doc['fuente'])
