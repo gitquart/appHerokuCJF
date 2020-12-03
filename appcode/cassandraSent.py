@@ -6,7 +6,7 @@ import os
 
 timeOut=1000
 cloud_config= {
-        'secure_connect_bundle': '/app/appcode/secure-connect-dbquart.zip'
+        'secure_connect_bundle': '/app/appcode/secure-connect-dbtest.zip'
     }
               
 def cassandraBDProcess(json_sentencia):
@@ -15,7 +15,7 @@ def cassandraBDProcess(json_sentencia):
 
     #Connect to Cassandra
     objCC=CassandraConnection()
-    auth_provider = PlainTextAuthProvider(objCC.cc_user,objCC.cc_pwd)
+    auth_provider = PlainTextAuthProvider(objCC.cc_user_test,objCC.cc_pwd_test)
     cluster = Cluster(cloud=cloud_config, auth_provider=auth_provider)
     session = cluster.connect()
     session.default_timeout=timeOut
@@ -53,7 +53,7 @@ def updatePage(page):
 
     #Connect to Cassandra
     objCC=CassandraConnection()
-    auth_provider = PlainTextAuthProvider(objCC.cc_user,objCC.cc_pwd)
+    auth_provider = PlainTextAuthProvider(objCC.cc_user_test,objCC.cc_pwd_test)
     cluster = Cluster(cloud=cloud_config, auth_provider=auth_provider)
     session = cluster.connect()
     session.default_timeout=timeOut
@@ -68,7 +68,7 @@ def getPageAndTopic():
 
     #Connect to Cassandra
     objCC=CassandraConnection()
-    auth_provider = PlainTextAuthProvider(objCC.cc_user,objCC.cc_pwd)
+    auth_provider = PlainTextAuthProvider(objCC.cc_user_test,objCC.cc_pwd_test)
     cluster = Cluster(cloud=cloud_config, auth_provider=auth_provider)
     session = cluster.connect()
     session.default_timeout=timeOut
@@ -98,7 +98,7 @@ def insertPDF(json_doc):
 
     #Connect to Cassandra
     objCC=CassandraConnection()
-    auth_provider = PlainTextAuthProvider(objCC.cc_user,objCC.cc_pwd)
+    auth_provider = PlainTextAuthProvider(objCC.cc_user_test,objCC.cc_pwd_test)
     cluster = Cluster(cloud=cloud_config, auth_provider=auth_provider)
     session = cluster.connect()
     session.default_timeout=timeOut
@@ -129,5 +129,7 @@ class CassandraConnection():
     cc_keyspace='thesis'
     cc_pwd='P@ssw0rd33'
     cc_databaseID='9de16523-0e36-4ff0-b388-44e8d0b1581f'
+    cc_user_test='test'
+    cc_pwd_test='testquart'
         
 
