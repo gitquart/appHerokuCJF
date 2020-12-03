@@ -23,7 +23,7 @@ def cassandraBDProcess(json_sentencia):
     fileNumber=json_sentencia['filenumber']
     #Check wheter or not the record exists, check by numberFile and date
     #Date in cassandra 2020-09-10T00:00:00.000+0000
-    querySt="select id from thesis.tbcourtdecisioncjf where filenumber='"+str(fileNumber)+"'  ALLOW FILTERING"            
+    querySt="select id from test.tbcourtdecisioncjf where filenumber='"+str(fileNumber)+"'  ALLOW FILTERING"            
     future = session.execute_async(querySt)
     row=future.result()
     lsRes=[]
@@ -39,7 +39,7 @@ def cassandraBDProcess(json_sentencia):
     else:        
         #Insert Data as JSON
         jsonS=json.dumps(json_sentencia)           
-        insertSt="INSERT INTO thesis.tbcourtdecisioncjf JSON '"+jsonS+"';" 
+        insertSt="INSERT INTO test.tbcourtdecisioncjf JSON '"+jsonS+"';" 
         future = session.execute_async(insertSt)
         future.result()  
         sent_added=True
@@ -58,7 +58,7 @@ def updatePage(page):
     session = cluster.connect()
     session.default_timeout=timeOut
     page=str(page)
-    querySt="update thesis.cjf_control set page="+page+" where  id_control=1;"          
+    querySt="update test.cjf_control set page="+page+" where  id_control=1;"          
     future = session.execute_async(querySt)
     future.result()
                          
@@ -74,7 +74,7 @@ def getPageAndTopic():
     session.default_timeout=timeOut
     row=''
     #select page from  thesis.cjf_control where id_control=1 and query='Primer circuito'
-    querySt="select query,page from thesis.cjf_control where id_control=1  ALLOW FILTERING"
+    querySt="select query,page from test.cjf_control where id_control=1  ALLOW FILTERING"
                 
     future = session.execute_async(querySt)
     row=future.result()
@@ -106,7 +106,7 @@ def insertPDF(json_doc):
     documento=str(json_doc['documento'])
     fuente=str(json_doc['fuente'])
     secuencia=str(json_doc['secuencia'])
-    querySt="select id from thesis.tbDocumento_cjf where iddocumento="+iddocumento+" and documento='"+documento+"' and fuente='"+fuente+"' AND secuencia="+secuencia+"  ALLOW FILTERING"          
+    querySt="select id from test.tbDocumento_cjf where iddocumento="+iddocumento+" and documento='"+documento+"' and fuente='"+fuente+"' AND secuencia="+secuencia+"  ALLOW FILTERING"          
     future = session.execute_async(querySt)
     row=future.result()
 
@@ -114,7 +114,7 @@ def insertPDF(json_doc):
         cluster.shutdown()
     else:    
         jsonS=json.dumps(json_doc)           
-        insertSt="INSERT INTO thesis.tbDocumento_cjf JSON '"+jsonS+"';" 
+        insertSt="INSERT INTO test.tbDocumento_cjf JSON '"+jsonS+"';" 
         future = session.execute_async(insertSt)
         future.result()  
         record_added=True
