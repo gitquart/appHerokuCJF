@@ -80,11 +80,13 @@ def processRow(browser,strSearch,row):
                 else:
                     print('Keep going...sentencia existed:',str(fileNumber))
 
-                #Check if a pdf exists                       
+                #Check if a pdf exists  
+                """                     
                 for file in os.listdir(download_dir):
                     pdfDownloaded=True
                     processPDF(json_sentencia,lsRes)
                     os.remove(download_dir+'/'+file)
+                """    
             
                 browser.close()
                 browser.switch_to_window(main_window)    
