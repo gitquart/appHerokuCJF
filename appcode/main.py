@@ -136,6 +136,10 @@ if status==200:
         #Change the page with next
         btnnext=browser.find_elements_by_xpath('//*[@id="grdSentencias_ctl00"]/tfoot/tr/td/table/tbody/tr/td/div[3]/input[1]')[0].click()
         time.sleep(5)  
+
+    if startPage>100:
+        print('Done with query: ',topic, ' . Please change topic')  
+        os.sys.exit(0)      
           
 
 browser.quit()
