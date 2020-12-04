@@ -1,6 +1,6 @@
 from selenium.webdriver.common.by import By
-from textwrap import wrap
 import cassandraSent as bd
+from textwrap import wrap
 import PyPDF2
 import uuid
 import base64
@@ -8,8 +8,10 @@ import time
 import json
 import os
 import sys
+import codecs
 
 download_dir='/app/Download'
+
 
 def appendInfoToFile(path,filename,strcontent):
     txtFile=open(path+filename,'a+')
@@ -17,6 +19,7 @@ def appendInfoToFile(path,filename,strcontent):
     txtFile.close()
 
 def processRow(browser,strSearch,row):
+    print('Current dir:',os.getcwd)
     pdfDownloaded=False
     for col in range(1,8):
         if col<7:
@@ -35,36 +38,6 @@ def processRow(browser,strSearch,row):
             if col==6:
                 date=browser.find_elements_by_xpath('//*[@id="grdSentencias_ctl00__'+str(row)+'"]/td['+str(col)+']')[0].text                    
 
-    #Except: Code withoud pdf
-    #Build the json by row            
-    json_sentencia = devuelveJSON('/app/appcode/json_sentencia.json')
-    json_sentencia['id']=str(uuid.uuid4())
-    json_sentencia['filenumber']=fileNumber
-    data=''
-    data=fileNumber.split('/')
-    year=0
-    year=int(data[1])
-    json_sentencia['year']=year
-    json_sentencia['filetype']=filetype
-    json_sentencia['jurisdictionalreviewer']=juris_rev
-    # timestamp accepted for cassandra: yyyy-mm-dd 
-    #In web site, the date comes as day-month-year
-    dateStr=date.split('/') #0:day,1:month,2:year
-    dtDate=dateStr[2]+'-'+dateStr[1]+'-'+dateStr[0]
-    json_sentencia['publication_datetime']='1000-01-01'
-    json_sentencia['strpublicationdatetime']=dtDate
-    json_sentencia['subject']=subject
-    json_sentencia['summary']=str(summary).replace("'"," ")   
-
-    #Insert information to cassandra
-    lsRes=bd.cassandraBDProcess(json_sentencia)
-    if lsRes[0]:
-        print('Sentencia added:',str(fileNumber))
-    else:
-        print('Keep going...sentencia existed:',str(fileNumber))
-
-            #End Except: Code withoud pdf    
-        """
         else:
             #This is the xpath of the link : //*[@id="grdSentencias_ctl00__'+str(row)+'"]/td['+str(col)+']/a
             #This find_element method works!
@@ -78,33 +51,57 @@ def processRow(browser,strSearch,row):
                 main_window=browser.window_handles[0]
                 pdf_window=browser.window_handles[1]
                 browser.switch_to_window(pdf_window)
+       
+                #Build the json by row            
+                json_sentencia=devuelveJSON('/app/appcode/json_sentencia.json')
+                json_sentencia['id']=str(uuid.uuid4())
+                json_sentencia['filenumber']=fileNumber
+                data=''
+                data=fileNumber.split('/')
+                year=0
+                year=int(data[1])
+                json_sentencia['year']=year
+                json_sentencia['filetype']=filetype
+                json_sentencia['jurisdictionalreviewer']=juris_rev
+                # timestamp accepted for cassandra: yyyy-mm-dd 
+                #In web site, the date comes as day-month-year
+                dateStr=date.split('/') #0:day,1:month,2:year
+                dtDate=dateStr[2]+'-'+dateStr[1]+'-'+dateStr[0]
+                json_sentencia['publication_datetime']='1000-01-01'
+                json_sentencia['strpublicationdatetime']=dtDate
+                json_sentencia['subject']=subject
+                json_sentencia['summary']=str(summary).replace("'"," ")    
+                #Check if a pdf exists                       
+                
+                #Insert information to cassandra
+                lsRes=bd.cassandraBDProcess(json_sentencia)
+                if lsRes[0]:
+                    print('Sentencia added:',str(fileNumber))
+                else:
+                    print('Keep going...sentencia existed:',str(fileNumber))
 
-                #Something goes here
-
+                #Check if a pdf exists  
+                """                     
+                for file in os.listdir(download_dir):
+                    pdfDownloaded=True
+                    processPDF(json_sentencia,lsRes)
+                    os.remove(download_dir+'/'+file)
+                """    
+            
                 browser.close()
-                browser.switch_to_window(main_window)
+                browser.switch_to_window(main_window)    
 
             else:
                 print('The pdf window was not opened',strSearch)
                 browser.quit()
-                sys.exit(0)     
-        """        
-                
-                #Here goes "Except: Code withoud pdf"
+                sys.exit(0)  
 
-                #Check if a pdf exists  
-                                     
-                #for file in os.listdir(download_dir):
-                #    pdfDownloaded=True
-                #    processPDF(json_sentencia,lsRes)
-                #    os.remove(download_dir+'\\'+file)
-                    
 
 """
 readPDF is done to read a PDF no matter the content, can be image or UTF-8 text
 """
 def readPDF(file):  
-    with open(download_dir+'\\'+file, "rb") as pdf_file:
+    with open(download_dir+'/'+file, "rb") as pdf_file:
         bContent = base64.b64encode(pdf_file.read()).decode('utf-8')
     
     return bContent  
@@ -123,7 +120,7 @@ def getPDFfromBase64(bContent):
     #Tutorial : https://base64.guru/developers/python/examples/decode-pdf
     bytes = base64.b64decode(bContent, validate=True)
     # Write the PDF contents to a local file
-    f = open(download_dir+'\\result.pdf', 'wb')
+    f = open(download_dir+'/result.pdf', 'wb')
     f.write(bytes)
     f.close()
     return "PDF delivered!"
@@ -152,7 +149,7 @@ def processPDF(json_sentencia,lsRes):
             strContent=readPDF(file) 
             print('Start wrapping text...') 
             lsContent=wrap(strContent,1000)  
-            json_documento=devuelveJSON('json_documento.json')
+            json_documento=devuelveJSON('/app/appcode/json_documento.json')
             if lsRes[0]:
                 json_documento['idDocumento']=json_sentencia['id']
             else:
@@ -200,15 +197,11 @@ def insertPDFChunks(startPos,contador,secuencia,totalElements,lsContent,json_doc
         return False            
 
                              
-
-
-                
-
 def readPyPDF(file):
     #This procedure produces a b'blabla' string, it has UTF-8
     #PDF files are stored as bytes. Therefore to read or write a PDF file you need to use rb or wb.
     lsContent=[]
-    pdfFileObj = open(download_dir+'\\'+file, 'rb')
+    pdfFileObj = open(download_dir+'/'+file, 'rb')
     pdfReader = PyPDF2.PdfFileReader(pdfFileObj)
     pags=pdfReader.numPages
     for x in range(0,pags):
