@@ -129,7 +129,6 @@ class CassandraConnection():
     cc_user='quartadmin'
     cc_keyspace='thesis'
     cc_pwd='P@ssw0rd33'
-    cc_databaseID='9de16523-0e36-4ff0-b388-44e8d0b1581f'
     cc_user_test='test'
     cc_pwd_test='testquart'
         
