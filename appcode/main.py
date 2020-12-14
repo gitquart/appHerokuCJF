@@ -89,7 +89,7 @@ if status==200:
     time.sleep(20)
     if startPage<=10:
         #Mechanism no failure
-        for i in range(1,startPage+1):
+        for i in range(1,startPage):
             SectionNextPages=browser.find_elements_by_xpath("//*[@id='grdSentencias_ctl00']/tfoot/tr/td/table/tbody/tr/td/div[3]/input[1]")[0].click()
             time.sleep(3)
         btnBuscaTema=browser.find_elements_by_xpath('//*[@id="btnBuscarPorTema_input"]')[0].click()
